@@ -42,9 +42,28 @@ exports.addPost = async (req, res) => {
   res.json(post);
 };
 
-exports.deletePost = () => {};
+exports.getPostById = async (req, res, next) => {
+  const postId = req.params.postId;
+  const post = await Post.findOne({ _id: postId });
+  req.post = post;
+  const posterId = mongoose.Types.ObjectId(req.post.postedBy._id);
+  if (req.user && req.user._id.equals(posterId)) {
+    req.isPoster = true;
+  }
+  next();
+};
 
-exports.getPostById = () => {};
+exports.deletePost = async (req, res) => {
+  const { _id } = req.post;
+  if (!req.isPoster) {
+    return res.status(400).json({
+      message: "You are not authenticated to perform this action"
+    });
+  }
+  const deletedPost = await Post.findOneAndDelete({ _id });
+  res.json(deletedPost);
+};
+
 
 exports.getPostsByUser = async (req, res) => {
   const posts = await Post.find({ postedBy: req.profile._id }).sort({
@@ -62,6 +81,40 @@ exports.getPostFeed = async (req, res) => {
   res.json(posts);
 };
 
-exports.toggleLike = () => {};
+exports.toggleLike = async(req, res) => {
+  const { postId } = req.body;
+  const post = await Post.findOne({ _id: postId });
+  const likeIds = post.likes.map(id => id.toString());
+  const authUserId = req.user._id.toString();
+  if (likeIds.includes(authUserId)) {
+    await post.likes.pull(authUserId);
+  } else {
+    await post.likes.push(authUserId);
+  }
+  await post.save();
+  res.json(post);
+};
 
-exports.toggleComment = () => {};
+exports.toggleComment = async (req, res) => {
+  const { comment, postId } = req.body;
+  let operator;
+  let data;
+
+  if (req.url.includes('uncomment')) {
+    operator = "$pull";
+    data = { _id: comment._id };
+  } else {
+    operator = "$push";
+    data = {
+      text: comment.text,
+      postedBy: req.user._id
+    };
+  }
+  const updatedPost = await Post.findOneAndUpdate(
+    { _id: postId },
+    { [operator]: { comments: data } },
+    { new : true }
+  ).populate('postedBy', '_id name avatar')
+  .populate('comments.postedBy', '_id name avatar');
+  res.json(updatedPost);
+};
