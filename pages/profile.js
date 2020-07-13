@@ -15,21 +15,35 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import { authInitialProps } from "../lib/auth";
 import { getUser } from "../lib/api";
 import Link from "next/link";
+import FollowUser from "../components/profile/FollowUser";
 
 const Profile = ({ userId, auth, classes }) => {
   const [user, setUser] = useState({});
   const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const isAuth = auth.user._id === userId;
     getUser(userId)
       .then(userData => {
+        const isFollowing = checkFollow(auth, userData);
         setIsLoading(false);
         setUser(userData);
         setIsAuth(isAuth);
+        setIsFollowing(isFollowing);
       });
   }, []);
+
+  const checkFollow = (auth, user) => {
+    return user.followers.findIndex(follower => follower._id === auth.user._id) > -1;
+  };
+
+  const toggleFollow = request => {
+    request(userId).then(() => {
+      setIsFollowing(!isFollowing);
+    });
+  };
 
   return (
     <Paper className={classes.root} elevation={4}>
@@ -49,35 +63,33 @@ const Profile = ({ userId, auth, classes }) => {
             thickness={5}
           ></CircularProgress>
         </div>
-      ): (
-        <List dense>
-          <ListItem>
-            <ListItemAvatar>
-              <Avatar resource={`${user.avatar}`} className={classes.bigAvatar}/>
-            </ListItemAvatar>
-            <ListItemText primary={user.name} secondary={user.email}></ListItemText>
-            {isAuth ? (
-              <ListItemSecondaryAction>
-                <Link href="/edit-profile">
-                  <a>
-                    <IconButton color="primary">
-                      <Edit />
-                    </IconButton>
-                  </a>
-                </Link>
-              </ListItemSecondaryAction>
-            ) : (
-              <div>
-                Follow
-              </div>
-            )}
-          </ListItem>
-          <Divider />
-          <ListItem>
-              <ListItemText primary={user.about} secondary={`Joined : ${user.createdAt}`}/>
-          </ListItem>
-        </List>
-      )}
+      ) : (
+          <List dense>
+            <ListItem>
+              <ListItemAvatar>
+                <Avatar resource={`${user.avatar}`} className={classes.bigAvatar} />
+              </ListItemAvatar>
+              <ListItemText primary={user.name} secondary={user.email}></ListItemText>
+              {isAuth ? (
+                <ListItemSecondaryAction>
+                  <Link href="/edit-profile">
+                    <a>
+                      <IconButton color="primary">
+                        <Edit />
+                      </IconButton>
+                    </a>
+                  </Link>
+                </ListItemSecondaryAction>
+              ) : (
+                  <FollowUser isFollowing={isFollowing} toggleFollow={toggleFollow}/>
+                )}
+            </ListItem>
+            <Divider />
+            <ListItem>
+              <ListItemText primary={user.about} secondary={`Joined : ${user.createdAt}`} />
+            </ListItem>
+          </List>
+        )}
     </Paper>
   );
 }

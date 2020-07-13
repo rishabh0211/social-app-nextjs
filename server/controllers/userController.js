@@ -103,7 +103,7 @@ exports.deleteUser = async (req, res) => {
 exports.addFollowing = async (req, res, next) => {
   const { followId } = req.body;
   await User.findOneAndUpdate(
-    { _id: req.user._id },
+    { _id: req.user._id, 'following': { $ne : followId} },
     { $push : { following: followId }}
   );
   next();
@@ -112,7 +112,7 @@ exports.addFollowing = async (req, res, next) => {
 exports.addFollower = async (req, res) => {
   const { followId } = req.body;
   const user = await User.findOneAndUpdate(
-    { _id: followId },
+    { _id: followId, 'followers': { $ne: req.user._id } },
     { $push : { followers: req.user._id }},
     { new: true }
   );
@@ -120,18 +120,18 @@ exports.addFollower = async (req, res) => {
 };
 
 exports.deleteFollowing = async (req, res, next) => {
-  const { followId } = req.body;
+  const { unfollowId } = req.body;
   await User.findOneAndUpdate(
     { _id: req.user._id },
-    { $pull : { following: followId }}
+    { $pull : { following: unfollowId }}
   );
   next();
 };
 
 exports.deleteFollower = async (req, res) => {
-  const { followId } = req.body;
+  const { unfollowId } = req.body;
   const user = await User.findOneAndUpdate(
-    { _id: followId },
+    { _id: unfollowId },
     { $pull : { followers: req.user._id }},
     { new: true }
   );
