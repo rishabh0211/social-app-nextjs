@@ -1,26 +1,152 @@
-// import Typography from "@material-ui/core/Typography";
-// import Avatar from "@material-ui/core/Avatar";
-// import FormControl from "@material-ui/core/FormControl";
-// import Paper from "@material-ui/core/Paper";
-// import Input from "@material-ui/core/Input";
-// import InputLabel from "@material-ui/core/InputLabel";
-// import Button from "@material-ui/core/Button";
-// import Snackbar from "@material-ui/core/Snackbar";
-// import Dialog from "@material-ui/core/Dialog";
-// import DialogActions from "@material-ui/core/DialogActions";
-// import DialogContent from "@material-ui/core/DialogContent";
-// import DialogContentText from "@material-ui/core/DialogContentText";
-// import DialogTitle from "@material-ui/core/DialogTitle";
-// import Slide from "@material-ui/core/Slide";
-// import Gavel from "@material-ui/icons/Gavel";
-// import VerifiedUserTwoTone from "@material-ui/icons/VerifiedUserTwoTone";
+import Typography from "@material-ui/core/Typography";
+import Avatar from "@material-ui/core/Avatar";
+import FormControl from "@material-ui/core/FormControl";
+import Paper from "@material-ui/core/Paper";
+import Input from "@material-ui/core/Input";
+import InputLabel from "@material-ui/core/InputLabel";
+import Button from "@material-ui/core/Button";
+import Snackbar from "@material-ui/core/Snackbar";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Slide from "@material-ui/core/Slide";
+import Gavel from "@material-ui/icons/Gavel";
+import VerifiedUserTwoTone from "@material-ui/icons/VerifiedUserTwoTone";
 import withStyles from "@material-ui/core/styles/withStyles";
+import Link from "next/link";
+import { signupUser } from "../lib/auth";
 
+function Transition(props) {
+  return <Slide direction="up" {...props} />
+}
 class Signup extends React.Component {
-  state = {};
+
+  constructor() {
+    super();
+    this.state = {
+      name: '',
+      email: '',
+      password: '',
+      error: '',
+      openError: false,
+      createdUser: '',
+      openSuccess: false,
+      isLoading: false
+    };
+  }
+
+  handleChange = event => {
+    this.setState({
+      [event.target.name]: event.target.value
+    });
+  }
+
+  handleSubmit = event => {
+    const { name, email, password } = this.state;
+    event.preventDefault();
+    this.setState({ isLoading: true, error: '' });
+    const user = { name, email, password };
+    signupUser(user)
+      .then(createdUser => {
+        this.setState({
+          createdUser,
+          error: '',
+          openSuccess: true,
+          isLoading: false
+        });
+      })
+      .catch(this.showError);
+  };
+
+  showError = (err) => {
+    const error = err.response && err.response.data || err.message;
+    this.setState({
+      error,
+      openError: true,
+      isLoading: false
+    });
+  };
+
+  handleClose = () => {
+    this.setState(prev => {
+      return {
+        openError: false
+      };
+    });
+  };
 
   render() {
-    return <div>Signup</div>;
+    const { classes } = this.props;
+    const { error, openError, openSuccess, createdUser, isLoading } = this.state;
+    return (
+      <div className={classes.root}>
+        <Paper className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <Gavel />
+          </Avatar>
+          <Typography variant="h5" component="h1">
+            Sign up
+          </Typography>
+          <form className={classes.form} autoComplete="off" onSubmit={this.handleSubmit}>
+            <FormControl margin="normal" required fullWidth autoComplete="off">
+              <InputLabel htmlFor="name">Name</InputLabel>
+              <Input name="name" type="text" onChange={this.handleChange} />
+            </FormControl>
+            <FormControl margin="normal" required fullWidth>
+              <InputLabel htmlFor="email">Email</InputLabel>
+              <Input name="email" type="email" onChange={this.handleChange} />
+            </FormControl>
+            <FormControl margin="normal" required fullWidth>
+              <InputLabel htmlFor="password">Password</InputLabel>
+              <Input name="password" type="password" onChange={this.handleChange} />
+            </FormControl>
+            <Button
+              disabled={isLoading}
+              type="submit"
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              fullWidth>
+              {isLoading ? 'Signing up...' : 'Sign up'}
+            </Button>
+          </form>
+          {error && <Snackbar
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            open={openError}
+            onClose={this.handleClose}
+            autoHideDuration={6000}
+            message={<span className={classes.snack}>{error}</span>}
+          />}
+        </Paper>
+        <Dialog
+          open={openSuccess}
+          disableBackdropClick={true}
+          TransitionComponent={Transition}
+        >
+          <DialogTitle>
+            <VerifiedUserTwoTone className={classes.icon} />
+            New Account
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              User {createdUser} successfully created!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button color="primary" variant="contained">
+              <Link href="/signin">
+                <a className={classes.signinLink}>Sign in</a>
+              </Link>
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
   }
 }
 
