@@ -1,23 +1,85 @@
-// import Paper from "@material-ui/core/Paper";
-// import List from "@material-ui/core/List";
-// import ListItem from "@material-ui/core/ListItem";
-// import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-// import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-// import ListItemText from "@material-ui/core/ListItemText";
-// import Avatar from "@material-ui/core/Avatar";
-// import IconButton from "@material-ui/core/IconButton";
-// import Typography from "@material-ui/core/Typography";
-// import CircularProgress from "@material-ui/core/CircularProgress";
-// import Divider from "@material-ui/core/Divider";
-// import Edit from "@material-ui/icons/Edit";
+import { useEffect, useState } from "react";
+import Paper from "@material-ui/core/Paper";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import ListItemText from "@material-ui/core/ListItemText";
+import Avatar from "@material-ui/core/Avatar";
+import IconButton from "@material-ui/core/IconButton";
+import Typography from "@material-ui/core/Typography";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Divider from "@material-ui/core/Divider";
+import Edit from "@material-ui/icons/Edit";
 import withStyles from "@material-ui/core/styles/withStyles";
+import { authInitialProps } from "../lib/auth";
+import { getUser } from "../lib/api";
+import Link from "next/link";
 
-class Profile extends React.Component {
-  state = {};
+const Profile = ({ userId, auth, classes }) => {
+  const [user, setUser] = useState({});
+  const [isAuth, setIsAuth] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  render() {
-    return <div>Profile</div>;
-  }
+  useEffect(() => {
+    const isAuth = auth.user._id === userId;
+    getUser(userId)
+      .then(userData => {
+        setIsLoading(false);
+        setUser(userData);
+        setIsAuth(isAuth);
+      });
+  }, []);
+
+  return (
+    <Paper className={classes.root} elevation={4}>
+      <Typography
+        component="h1"
+        variant="h4"
+        align="center"
+        className={classes.title}
+        gutterBottom>
+        Profile
+      </Typography>
+      {isLoading ? (
+        <div className={classes.progressContainer}>
+          <CircularProgress
+            className={classes.progress}
+            size={55}
+            thickness={5}
+          ></CircularProgress>
+        </div>
+      ): (
+        <List dense>
+          <ListItem>
+            <ListItemAvatar>
+              <Avatar resource={`${user.avatar}`} className={classes.bigAvatar}/>
+            </ListItemAvatar>
+            <ListItemText primary={user.name} secondary={user.email}></ListItemText>
+            {isAuth ? (
+              <ListItemSecondaryAction>
+                <Link href="/edit-profile">
+                  <a>
+                    <IconButton color="primary">
+                      <Edit />
+                    </IconButton>
+                  </a>
+                </Link>
+              </ListItemSecondaryAction>
+            ) : (
+              <div>
+                Follow
+              </div>
+            )}
+          </ListItem>
+          <Divider />
+          <ListItem>
+              <ListItemText primary={user.about} secondary={`Joined : ${user.createdAt}`}/>
+          </ListItem>
+        </List>
+      )}
+    </Paper>
+  );
 }
 
 const styles = theme => ({
@@ -47,5 +109,7 @@ const styles = theme => ({
     margin: 10
   }
 });
+
+Profile.getInitialProps = authInitialProps(true);
 
 export default withStyles(styles)(Profile);
