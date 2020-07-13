@@ -16,6 +16,7 @@ import { authInitialProps } from "../lib/auth";
 import { getUser } from "../lib/api";
 import Link from "next/link";
 import FollowUser from "../components/profile/FollowUser";
+import DeleteUser from "../components/profile/DeleteUser";
 
 const Profile = ({ userId, auth, classes }) => {
   const [user, setUser] = useState({});
@@ -79,6 +80,7 @@ const Profile = ({ userId, auth, classes }) => {
                       </IconButton>
                     </a>
                   </Link>
+                  <DeleteUser user={user}/>
                 </ListItemSecondaryAction>
               ) : (
                   <FollowUser isFollowing={isFollowing} toggleFollow={toggleFollow}/>
