@@ -1,7 +1,8 @@
 import Typography from "@material-ui/core/Typography";
 import withStyles from "@material-ui/core/styles/withStyles";
 import NewPost from "./NewPost";
-import { addPost } from "../../lib/api";
+import { addPost, getPostFeed } from "../../lib/api";
+import Post from "./Post";
 
 class PostFeed extends React.Component {
   state = {
@@ -13,7 +14,17 @@ class PostFeed extends React.Component {
 
   componentDidMount() {
     this.postData = new FormData();
+    this.getPosts();
   }
+
+  getPosts = () => {
+    const { auth } = this.props;
+
+    getPostFeed(auth.user._id)
+      .then(posts => {
+        this.setState({ posts });
+      });
+  };
 
   handleChange = event => {
     let { name, value } = event.target;
@@ -52,7 +63,7 @@ class PostFeed extends React.Component {
 
   render() {
     const { classes, auth } = this.props;
-    const { text, image, isAddingPost } = this.state;
+    const { text, image, isAddingPost, posts } = this.state;
     return (
       <div className={classes.root}>
         <Typography variant="h4" component="h1" align="center" color="primary" className={classes.title}>
@@ -65,7 +76,14 @@ class PostFeed extends React.Component {
           isAddingPost={isAddingPost}
           handleChange={this.handleChange}
           handleAddPost={this.handleAddPost}
+        />
+        {posts.map(post => (
+          <Post
+            key={post._id}
+            auth={auth}
+            post={post}
           />
+        ))}
       </div>
     );
   }
