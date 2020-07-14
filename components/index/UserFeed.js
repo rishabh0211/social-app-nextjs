@@ -63,10 +63,14 @@ class UserFeed extends React.Component {
           {users.map((user, index) => (
             <span key={user._id}>
               <ListItem>
-                <ListItemAvatar className={classes.avatar}>
-                  <Avatar src={user.avatar} />
-                </ListItemAvatar>
-                <ListItemText primary={user.name} />
+                <Link href={`/profile/${user._id}`}>
+                  <span className={classes.userContainer}>
+                    <ListItemAvatar className={classes.avatar}>
+                      <Avatar src={user.avatar} />
+                    </ListItemAvatar>
+                    <ListItemText primary={user.name} />
+                  </span>
+                </Link>
                 <ListItemSecondaryAction className={classes.follow}>
                   <Link href={`profile/${user._id}`}>
                     <IconButton variant="contained" color="secondary" className={classes.viewButton}>
@@ -115,6 +119,11 @@ const styles = theme => ({
   },
   viewButton: {
     verticalAlign: "middle"
+  },
+  userContainer: {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer"
   }
 });
 
