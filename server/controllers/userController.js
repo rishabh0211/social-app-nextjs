@@ -31,6 +31,7 @@ exports.getUserById = async (req, res, next) => {
     req.isAuthUser = true;
     return next();
   }
+  console.log('inside getUserById');
   next();
 };
 
@@ -57,6 +58,7 @@ const avatarUploadOptions = {
     fileSize: 1024 * 1024 * 1
   },
   fileFilter: (req, file, next) => {
+    console.log('inside avatarUploadOptions');
     if (file.mimetype.startsWith('image/')) {
       next(null, true);
     } else {
@@ -68,9 +70,11 @@ const avatarUploadOptions = {
 exports.uploadAvatar = multer(avatarUploadOptions).single('avatar');
 
 exports.resizeAvatar = async (req, res, next) => {
+  console.log(`req.file = ${!!req.file}`);
   if (!req.file) {
     return next();
   }
+  console.log('inside resizeAvatar');
   const extension = req.file.mimetype.split('/')[1];
   req.body.avatar = `/static/uploads/avatars/${req.user.name}-${Date.now()}.${extension}`;
   const image = await jimp.read(req.file.buffer);

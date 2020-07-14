@@ -68,7 +68,7 @@ const Profile = ({ userId, auth, classes }) => {
           <List dense>
             <ListItem>
               <ListItemAvatar>
-                <Avatar resource={`${user.avatar}`} className={classes.bigAvatar} />
+                <Avatar src={`${user.avatar}`} className={classes.bigAvatar} />
               </ListItemAvatar>
               <ListItemText primary={user.name} secondary={user.email}></ListItemText>
               {isAuth ? (
