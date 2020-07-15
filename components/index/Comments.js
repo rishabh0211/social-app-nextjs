@@ -13,7 +13,7 @@ class Comments extends React.Component {
   };
 
   showComment = comment => {
-    const { auth, comments, classes } = this.props;
+    const { postId, auth, comments, classes, handleDeleteComment } = this.props;
     const isCommentCreator = comment.postedBy._id === auth.user._id;
     return (
       <div>
@@ -28,6 +28,7 @@ class Comments extends React.Component {
             <Delete
               color="secondary"
               className={classes.commentDelete}
+              onClick={() => handleDeleteComment(postId, comment)}
             />
           )}
         </span>
