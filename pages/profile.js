@@ -13,22 +13,26 @@ import Divider from "@material-ui/core/Divider";
 import Edit from "@material-ui/icons/Edit";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { authInitialProps } from "../lib/auth";
-import { getUser } from "../lib/api";
+import { getUser, getPostsByUser } from "../lib/api";
 import Link from "next/link";
 import FollowUser from "../components/profile/FollowUser";
 import DeleteUser from "../components/profile/DeleteUser";
+import ProfileTabs from "../components/profile/ProfileTabs";
 
 const Profile = ({ userId, auth, classes }) => {
   const [user, setUser] = useState({});
   const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const isAuth = auth.user._id === userId;
     getUser(userId)
-      .then(userData => {
+      .then(async userData => {
+        const isAuth = auth.user._id === userId;
         const isFollowing = checkFollow(auth, userData);
+        const posts = await getPostsByUser(userId);
+        setPosts(posts);
         setIsLoading(false);
         setUser(userData);
         setIsAuth(isAuth);
@@ -80,16 +84,22 @@ const Profile = ({ userId, auth, classes }) => {
                       </IconButton>
                     </a>
                   </Link>
-                  <DeleteUser user={user}/>
+                  <DeleteUser user={user} />
                 </ListItemSecondaryAction>
               ) : (
-                  <FollowUser isFollowing={isFollowing} toggleFollow={toggleFollow}/>
+                  <FollowUser isFollowing={isFollowing} toggleFollow={toggleFollow} />
                 )}
             </ListItem>
             <Divider />
             <ListItem>
               <ListItemText primary={user.about} secondary={`Joined : ${user.createdAt}`} />
             </ListItem>
+
+            <ProfileTabs
+              auth={auth}
+              user={user}
+              posts={posts}
+            />
           </List>
         )}
     </Paper>
