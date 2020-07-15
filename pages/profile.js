@@ -166,7 +166,8 @@ const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, ha
 
             <ProfileTabs
               auth={auth}
-              post={posts}
+              posts={posts}
+              user={user}
               isDeletingPost={isDeletingPost}
               handleDeletePost={handleDeletePost}
               handleToggleLike={handleToggleLike}

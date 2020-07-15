@@ -3,6 +3,7 @@ import Typography from "@material-ui/core/Typography";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Post from "../index/Post";
+import FollowTab from "./FollowTab";
 
 class ProfileTabs extends React.Component {
   state = {
@@ -45,6 +46,16 @@ class ProfileTabs extends React.Component {
                 handleDeleteComment={handleDeleteComment}
               />
             ))}
+          </TabContainer>
+        )}
+        {tab === 1 && (
+          <TabContainer>
+            <FollowTab users={user.following}/>
+          </TabContainer>
+        )}
+        {tab === 2 && (
+          <TabContainer>
+            <FollowTab users={user.followers}/>
           </TabContainer>
         )}
       </div>
