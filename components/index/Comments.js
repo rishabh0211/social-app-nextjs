@@ -6,11 +6,17 @@ import Avatar from "@material-ui/core/Avatar";
 import Delete from "@material-ui/icons/Delete";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Link from "next/link";
+import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
 class Comments extends React.Component {
   state = {
     text: ""
   };
+
+  formatTimeCreated = time => distanceInWordsToNow(time, {
+    includeSeconds: true,
+    addSuffix: true
+  });
 
   showComment = comment => {
     const { postId, auth, comments, classes, handleDeleteComment } = this.props;
@@ -23,7 +29,7 @@ class Comments extends React.Component {
         <br />
         {comment.text}
         <span className={classes.commentDate}>
-          {comment.createdAt}
+          {this.formatTimeCreated(comment.createdAt)}
           {isCommentCreator && (
             <Delete
               color="secondary"

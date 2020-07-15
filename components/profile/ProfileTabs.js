@@ -25,7 +25,7 @@ class ProfileTabs extends React.Component {
             onChange={this.handleTabChange}
             indicatorColor="secondary"
             textColor="secondary"
-            fullWidth
+            variant="fullWidth"
           >
             <Tab label="Posts" />
             <Tab label="Following" />

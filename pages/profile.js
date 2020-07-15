@@ -18,8 +18,9 @@ import Link from "next/link";
 import FollowUser from "../components/profile/FollowUser";
 import DeleteUser from "../components/profile/DeleteUser";
 import ProfileTabs from "../components/profile/ProfileTabs";
+import format from "date-fns/format";
 
-const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, handleAddComment, handleDeleteComment }) => {
+const Profile = ({ userId, auth, classes }) => {
   const [user, setUser] = useState({});
   const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +52,7 @@ const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, ha
     });
   };
 
-  handleDeletePost = deletedPost => {
+  const handleDeletePost = deletedPost => {
     setIsDeletingPost(true);
     deletePost(deletedPost._id)
       .then(postData => {
@@ -69,7 +70,7 @@ const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, ha
       });
   };
 
-  handleToggleLike = post => {
+  const handleToggleLike = post => {
     const { auth } = this.props;
     const isPostLiked = post.likes.includes(auth.user._id);
     const sendRequest = isPostLiked ? unlikePost : likePost;
@@ -88,7 +89,7 @@ const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, ha
       });
   };
 
-  handleAddComment = (postId, text) => {
+  const handleAddComment = (postId, text) => {
     const comment = { text };
     addComment(postId, comment)
       .then(postData => {
@@ -103,9 +104,9 @@ const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, ha
       .catch(err => {
         console.log(err);
       });
-  }
+  };
 
-  handleDeleteComment = (postId, comment) => {
+  const handleDeleteComment = (postId, comment) => {
     deteleComment(postId, comment)
       .then(postData => {
         const postIndex = posts.findIndex(post => post._id === postData._id);
@@ -117,7 +118,11 @@ const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, ha
         setPosts(updatedPosts);
       })
       .catch(err => console.log(err));
-  }
+  };
+
+  const formatDate = date => {
+    return format(date, "dddd, MMMM Do, YYYY");
+  };
 
   return (
     <Paper className={classes.root} elevation={4}>
@@ -161,7 +166,7 @@ const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, ha
             </ListItem>
             <Divider />
             <ListItem>
-              <ListItemText primary={user.about} secondary={`Joined : ${user.createdAt}`} />
+              <ListItemText primary={user.about} secondary={`Joined :  ${formatDate(user.createdAt)}`} />
             </ListItem>
 
             <ProfileTabs
