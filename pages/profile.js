@@ -71,14 +71,13 @@ const Profile = ({ userId, auth, classes }) => {
   };
 
   const handleToggleLike = post => {
-    const { auth } = this.props;
     const isPostLiked = post.likes.includes(auth.user._id);
     const sendRequest = isPostLiked ? unlikePost : likePost;
     sendRequest(post._id)
       .then(postData => {
         const postIndex = posts.findIndex(post => post._id === postData._id);
         const updatedPosts = [
-          ...postsd(0, postIndex),
+          ...posts.slice(0, postIndex),
           postData,
           ...posts.slice(postIndex + 1)
         ];
