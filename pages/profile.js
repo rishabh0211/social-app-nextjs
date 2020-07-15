@@ -13,18 +13,19 @@ import Divider from "@material-ui/core/Divider";
 import Edit from "@material-ui/icons/Edit";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { authInitialProps } from "../lib/auth";
-import { getUser, getPostsByUser } from "../lib/api";
+import { getUser, getPostsByUser, deletePost, unlikePost, likePost, addComment, deteleComment } from "../lib/api";
 import Link from "next/link";
 import FollowUser from "../components/profile/FollowUser";
 import DeleteUser from "../components/profile/DeleteUser";
 import ProfileTabs from "../components/profile/ProfileTabs";
 
-const Profile = ({ userId, auth, classes }) => {
+const Profile = ({ userId, auth, classes, handleDeletePost, handleToggleLike, handleAddComment, handleDeleteComment }) => {
   const [user, setUser] = useState({});
   const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [isDeletingPost, setIsDeletingPost] = useState(false);
 
   useEffect(() => {
     getUser(userId)
@@ -49,6 +50,74 @@ const Profile = ({ userId, auth, classes }) => {
       setIsFollowing(!isFollowing);
     });
   };
+
+  handleDeletePost = deletedPost => {
+    setIsDeletingPost(true);
+    deletePost(deletedPost._id)
+      .then(postData => {
+        const postIndex = posts.findIndex(post => post._id === postData._id);
+        const updatedPosts = [
+          ...posts.slice(0, postIndex),
+          ...posts.slice(postIndex + 1)
+        ];
+        setIsDeletingPost(false);
+        setPosts(updatedPosts);
+      })
+      .catch(err => {
+        console.log(err);
+        setIsDeletingPost(false);
+      });
+  };
+
+  handleToggleLike = post => {
+    const { auth } = this.props;
+    const isPostLiked = post.likes.includes(auth.user._id);
+    const sendRequest = isPostLiked ? unlikePost : likePost;
+    sendRequest(post._id)
+      .then(postData => {
+        const postIndex = posts.findIndex(post => post._id === postData._id);
+        const updatedPosts = [
+          ...postsd(0, postIndex),
+          postData,
+          ...posts.slice(postIndex + 1)
+        ];
+        setPosts(updatedPosts);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  handleAddComment = (postId, text) => {
+    const comment = { text };
+    addComment(postId, comment)
+      .then(postData => {
+        const postIndex = posts.findIndex(post => post._id === postData._id);
+        const updatedPosts = [
+          ...posts.slice(0, postIndex),
+          postData,
+          ...posts.slice(postIndex + 1)
+        ]
+        setPosts(updatedPosts);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  handleDeleteComment = (postId, comment) => {
+    deteleComment(postId, comment)
+      .then(postData => {
+        const postIndex = posts.findIndex(post => post._id === postData._id);
+        const updatedPosts = [
+          ...posts.slice(0, postIndex),
+          postData,
+          ...posts.slice(postIndex + 1)
+        ]
+        setPosts(updatedPosts);
+      })
+      .catch(err => console.log(err));
+  }
 
   return (
     <Paper className={classes.root} elevation={4}>
@@ -97,8 +166,12 @@ const Profile = ({ userId, auth, classes }) => {
 
             <ProfileTabs
               auth={auth}
-              user={user}
-              posts={posts}
+              post={posts}
+              isDeletingPost={isDeletingPost}
+              handleDeletePost={handleDeletePost}
+              handleToggleLike={handleToggleLike}
+              handleAddComment={handleAddComment}
+              handleDeleteComment={handleDeleteComment}
             />
           </List>
         )}

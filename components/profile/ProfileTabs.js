@@ -15,7 +15,7 @@ class ProfileTabs extends React.Component {
 
   render() {
     const { tab } = this.state;
-    const { posts, user, auth } = this.props;
+    const { posts, user, auth, isDeletingPost, handleDeletePost, handleToggleLike, handleAddComment, handleDeleteComment } = this.props;
     return (
       <div>
         <AppBar position="static" color="default">
@@ -36,8 +36,13 @@ class ProfileTabs extends React.Component {
             {posts.map(post => (
               <Post
                 key={post._id}
-                post={post}
                 auth={auth}
+                post={post}
+                isDeletingPost={isDeletingPost}
+                handleDeletePost={handleDeletePost}
+                handleToggleLike={handleToggleLike}
+                handleAddComment={handleAddComment}
+                handleDeleteComment={handleDeleteComment}
               />
             ))}
           </TabContainer>

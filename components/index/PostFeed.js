@@ -87,7 +87,7 @@ class PostFeed extends React.Component {
       .then(postData => {
         const postIndex = this.state.posts.findIndex(post => post._id === postData._id);
         const updatedPosts = [
-          ...this.state.postsd(0, postIndex),
+          ...this.state.posts.slice(0, postIndex),
           postData,
           ...this.state.posts.slice(postIndex + 1)
         ]
