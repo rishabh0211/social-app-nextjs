@@ -2,6 +2,10 @@
   "name": "next-connect",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "^16.14.0",
+    "npm": "^8.5.5"
+  },
   "main": "app.js",
   "scripts": {
     "dev": "nodemon server/app.js --watch server",
