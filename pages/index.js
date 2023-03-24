@@ -19,7 +19,7 @@ const Index = ({ auth, classes}) => {
             <PostFeed auth={auth}/>
           </Grid>
           <Grid item className={classes.drawerContainer}>
-            <Drawer 
+            <Drawer
               className={classes.drawer}
               variant="permanent"
               anchor="right"
@@ -32,7 +32,7 @@ const Index = ({ auth, classes}) => {
           </Grid>
         </Grid>
       ): (
-        <Grid 
+        <Grid
           justify="center"
           alignItems="center"
           direction="row"
